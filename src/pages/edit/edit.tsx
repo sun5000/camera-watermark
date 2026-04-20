@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { fabric } from 'fabric';
-import { createLocal, downloadFile, loadImage, saveFile } from '@/utils';
+import {
+  createLocal,
+  downloadFile,
+  getExportImageExt,
+  getExportImageMimeType,
+  loadImage,
+  saveFile,
+} from '@/utils';
 import exifr from 'exifr';
 import EditComponent, {
   ForWardRefHandler,
@@ -238,7 +245,11 @@ const Edit = () => {
   };
 
   const downloadHandler = async () => {
-    const downloadImageData = await editRef.current?.exportImageUrl({})!;
+    const mimeType = getExportImageMimeType(imgInfo.file);
+    const ext = getExportImageExt(mimeType);
+    const downloadImageData = await editRef.current?.exportImageUrl({
+      mimeType,
+    })!;
 
     const worker = new Worker();
     worker.postMessage({
@@ -246,7 +257,7 @@ const Edit = () => {
     });
     worker.onmessage = (event) => {
       const { blob } = event.data;
-      saveFile(blob, `${imgInfo.filename}_${+new Date()}.png`);
+      saveFile(blob, `${imgInfo.filename}_${+new Date()}.${ext}`);
       worker.terminate();
     };
   };

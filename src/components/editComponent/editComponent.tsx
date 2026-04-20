@@ -7,7 +7,12 @@ import {
   memo,
 } from 'react';
 import { fabric } from 'fabric';
-import { clonePromise, getCanvasExportMultiplier, loadImage } from '@/utils';
+import {
+  clonePromise,
+  getCanvasExportMultiplier,
+  getExportImageMimeType,
+  loadImage,
+} from '@/utils';
 import {
   initAligningGuidelines,
   initCenteringGuidelines,
@@ -28,10 +33,14 @@ interface EditComponentProps {
 
 interface ExportImageUrlParams {
   multiplier?: number;
+  mimeType?: 'image/jpeg' | 'image/png';
 }
 
 export interface ForWardRefHandler {
-  exportImageUrl: (props: { multiplier?: number }) => Promise<string>;
+  exportImageUrl: (props: {
+    multiplier?: number;
+    mimeType?: 'image/jpeg' | 'image/png';
+  }) => Promise<string>;
 }
 
 const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
@@ -306,6 +315,8 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
       // return imageData
 
       return new Promise((resolve) => {
+        const mimeType = params.mimeType ?? getExportImageMimeType(file);
+        const quality = 1.0;
         const canvasEl = downloadCanvas.current!.toCanvasElement(
           params.multiplier ?? getCanvasExportMultiplier(mainCanvasObjects)
         );
@@ -313,8 +324,8 @@ const EditComponent = forwardRef<ForWardRefHandler, EditComponentProps>(
           (blob) => {
             resolve(URL.createObjectURL(blob!));
           },
-          'image/png',
-          1.0
+          mimeType,
+          quality
         );
       });
     };

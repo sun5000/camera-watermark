@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import logoSvg from '/vite.svg';
 import { Icon } from '@iconify-icon/react';
 import Lightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
 import { addDbEditInfo, clearDbEditInfo } from '@/db/utils';
 import {
   Tooltip,

@@ -38,6 +38,27 @@ export const clonePromise = (fabricObject: fabric.Object) => {
   });
 };
 
+export type ExportImageMimeType = 'image/jpeg' | 'image/png';
+
+/**
+ * 根据原始文件类型决定导出格式：
+ * - jpeg/jpg/webp 等有损格式统一导出 jpeg（更省体积）
+ * - png 导出 png（保留无损和透明信息）
+ */
+export const getExportImageMimeType = (
+  file: File | null | undefined
+): ExportImageMimeType => {
+  const type = (file?.type || '').toLowerCase();
+  if (type === 'image/png') {
+    return 'image/png';
+  }
+  return 'image/jpeg';
+};
+
+export const getExportImageExt = (mimeType: ExportImageMimeType): string => {
+  return mimeType === 'image/png' ? 'png' : 'jpeg';
+};
+
 /**
  * 将url文件下载到本地
  * @param fileUrl {String} 文件链接

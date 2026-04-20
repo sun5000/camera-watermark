@@ -9,7 +9,7 @@ import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css'; // This only needs to be imported once in your app
 import { Button } from '@/components/ui/button';
 import Worker from '../../workers/index?worker';
-import { saveFile } from '@/utils';
+import { getExportImageExt, getExportImageMimeType, saveFile } from '@/utils';
 import { getDbEditInfo, getSomeDbEditInfo } from '@/db/utils';
 import loadingSystem from '@/components/loadingSystem/loadingSystem';
 import EditComponentBlur from '@/components/editComponentBlur/editComponentBlur';
@@ -63,7 +63,11 @@ function EditList() {
   };
 
   const downloadHandler = async (ref: any, info: any) => {
-    const downloadImageData = await ref.current?.exportImageUrl({})!;
+    const mimeType = getExportImageMimeType(info.file);
+    const ext = getExportImageExt(mimeType);
+    const downloadImageData = await ref.current?.exportImageUrl({
+      mimeType,
+    })!;
 
     return new Promise((resolve) => {
       const worker = workerPool.current.pop() || new Worker();
@@ -72,7 +76,7 @@ function EditList() {
       });
       worker.onmessage = (event) => {
         const { blob } = event.data;
-        saveFile(blob, `${info.filename}_${+new Date()}.png`);
+        saveFile(blob, `${info.filename}_${+new Date()}.${ext}`);
         workerPool.current.push(worker); // 将 Worker 放回池中
         URL.revokeObjectURL(downloadImageData);
         resolve(null);
